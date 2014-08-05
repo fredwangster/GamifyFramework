@@ -1,0 +1,599 @@
+{include:site/desktop/sub/header.html}
+
+<style type="text/css">
+	a {
+		cursor:	pointer;
+	}
+	.dropdown-menu {
+		max-height:		400px;
+		overflow:		auto;
+	}
+</style>
+
+<div id="content" ng-controller="pageCtrl">
+	
+	<div id="panorama" class="panorama"></div>
+	<div class="overlay" id="overlay"></div>
+	
+	<div class="content">
+		<div id="logo" class="logo"></div>
+		
+		
+		<!-- Offline texts -->
+		<div ng-if="anonymous">
+			<div class="text-large">
+				Bacon ipsum dolor sit amet jowl
+			</div>
+			<div class="text-medium">
+				Pork belly pork chop jerky cow andouille landjaeger turkey 
+			</div>
+		</div>
+		
+		<!-- Online texts: points -->
+		<div ng-if="!anonymous" class="text-points">
+			<div class="large">
+				You have earned <span>{{points.data.points}}</span> points so far.
+			</div>
+			<div class="small">
+				The more points you earn, the highest you'll be in the waiting list.
+			</div>
+		</div>
+		
+		
+		<!-- Login box -->
+		<div ng-if="anonymous" class="box" id="box-connect" style="margin-top:30px;">
+			<div class="box-content">
+				<div class="text center regular">Pork belly pork chop jerky cow andouille landjaeger turkey</div>
+				<div class="fblogin" ng-click="social_connect('facebook')"></div>
+				<div class="text center small">Pork belly pork chop jerky cow andouille landjaeger turkey</div>
+			</div>
+		</div>
+		
+		<!-- email box -->
+		<form novalidate class="box" id="box-email">
+			<div class="box-content">
+				<div class="title">Is this your current email address?</div>
+				<input type="text" class="icon-email" placeholder="Email" ng-model="user.email" />
+				<div class="footer-text">
+					Confirm your email address to earn 5 points
+				</div>
+			</div>
+			<div class="buttons">
+				<div class="button cancel" ng-click="data.skip('email')">skip</div>
+				<div class="button confirm" ng-click="data.save('email')">confirm</div>
+			</div>
+		</form>
+		
+		<!-- email error box -->
+		<div class="box" id="box-email-error">
+			<div class="box-content">
+				<div class="title">Oh no!</div>
+				<div class="text">
+					<u>{{user.email}}</u> is not a valid email address!<br />
+					Please enter a valid email address, or skip that step.
+				</div>
+			</div>
+			<div class="buttons">
+				<div class="button cancel" ng-click="data.skip('email')">skip that step</div>
+				<div class="button confirm" ng-click="data.skipError('email')">got it</div>
+			</div>
+		</div>
+		
+		<!-- phone box -->
+		<div class="box" id="box-phone">
+			<div class="box-content">
+				<div class="title">Receive a text message when we launch</div>
+				
+				<div class="phonebox">
+					<select ng-model="user.phone.code">
+						<option ng-repeat="code in countrycodes" value="{{code.id}}" ng-selected="$first && !user.phone.code || code.id == user.phone.code">+{{code.id}}{{codespan(code.id)}}{{code.name}}</option>
+					</select>
+					<input type="phone" class="icon-phone" placeholder="Phone number" ng-pattern="/[0-9-]+/" ng-model="user.phone.number" />
+				</div>
+				
+				
+				<div class="footer-text">
+					Enter your phone number to earn 10 points
+				</div>
+			</div>
+			<div class="buttons">
+				<div class="button cancel" ng-click="data.skip('phone')">skip</div>
+				<div class="button confirm" ng-click="data.save('phone')">confirm</div>
+			</div>
+		</div>
+		
+		<!-- phone error box -->
+		<div class="box" id="box-phone-error">
+			<div class="box-content">
+				<div class="title">Oh no!</div>
+				<div class="text">
+					The phone number your entered doesn't seem valid.<br />
+					Make sure you select the right country code and enter a valid phone number.
+				</div>
+			</div>
+			<div class="buttons">
+				<div class="button cancel" ng-click="data.skip('phone')">skip that step</div>
+				<div class="button confirm" ng-click="data.skipError('phone')">got it</div>
+			</div>
+		</div>
+		
+		
+		<!-- link box -->
+		<div class="box" id="box-link">
+			<div class="box-content">
+				<div class="title">Spread the word</div>
+				<div class="text" style="margin-bottom:8px;">
+					This is your own unique link. Share it by email and on social medias, and for every user who sign up using your link, we'll give you points to help you get up in the waiting list! 
+				</div>
+				<input type="text" class="icon-link" readonly value="http://beta.pagevamp.com/{{user.id}}" />
+				<div class="footer-text">
+					Earn 20 points for every person who signs up using your link.
+				</div>
+			</div>
+			<div class="buttons">
+				<div class="button twitter" ng-click="post.twitter()">Post on twitter</div>
+				<div class="button facebook" ng-click="post.facebook()">Post on facebook</div>
+			</div>
+		</div>
+		
+		
+		<!-- stats box -->
+		<div class="box" id="box-stats">
+			<div class="box-content">
+				<table class="stats">
+					<tbody>
+						<tr>
+							<td style="width:38px; text-align:center;">
+								<img src="http://63b6362e95c3d031c52e-830a5dbfa7ab54763de5691a4f04b95d.r37.cf1.rackcdn.com/arrowUp.png" />
+							</td>
+							<td>
+								<span>{{points.data.before}}</span> in front of you
+							</td>
+						</tr>
+						<tr>
+							<td style="width:38px; text-align:center;">
+								<img src="http://63b6362e95c3d031c52e-830a5dbfa7ab54763de5691a4f04b95d.r37.cf1.rackcdn.com/user.png" />
+							</td>
+							<td>
+								You
+							</td>
+						</tr>
+						<tr>
+							<td style="width:38px; text-align:center;">
+								<img src="http://63b6362e95c3d031c52e-830a5dbfa7ab54763de5691a4f04b95d.r37.cf1.rackcdn.com/arrowUp.png" />
+							</td>
+							<td>
+								<span>{{points.data.before}}</span> behind of you
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+		
+		<!-- Offline presentation of Pagevamp -->
+		<div ng-if="anonymous" class="white-container">
+			<div class="hsep"></div>
+			<div class="ball"></div>
+			<table>
+				<tbody>
+					<tr>
+						<td style="width:50%;">
+							<table width="100%;">
+								<tbody>
+									<tr>
+										<td style="width:134px;vertical-align:top;">
+											<img src="http://63b6362e95c3d031c52e-830a5dbfa7ab54763de5691a4f04b95d.r37.cf1.rackcdn.com/dev.png" />
+										</td>
+										<td style="vertical-align:middle;">
+											Bacon ipsum dolor sit amet beef turkey doner, salami brisket tri-tip filet mignon tenderloin. Ham venison turkey rump, tail capicola frankfurter t-bone salami. Rump turkey ribeye, venison meatball pork chop spare ribs. Meatball shank bresaola pork beef ribs. Pork chop strip steak andouille drumstick pastrami, pork belly jowl sirloin capicola. Salami tenderloin sausage tri-tip, short ribs shank kevin.
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td style="width:50%;">
+							<table width="100%;">
+								<tbody>
+									<tr>
+										<td style="width:134px;vertical-align:top;">
+											<img src="http://63b6362e95c3d031c52e-830a5dbfa7ab54763de5691a4f04b95d.r37.cf1.rackcdn.com/global.png" />
+										</td>
+										<td style="vertical-align:middle;">
+											Pork loin filet mignon, tongue shankle ground round pork belly corned beef bresaola frankfurter. Andouille jowl sirloin beef brisket beef ribs cow ham. Kevin biltong tri-tip rump bacon prosciutto, frankfurter beef landjaeger chuck hamburger brisket strip steak pork salami. Bacon capicola pork belly rump, ham beef ribs biltong jowl kevin prosciutto. Frankfurter brisket short ribs beef kevin beef ribs meatloaf bresaola boudin swine.
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td style="width:50%;">
+							<table width="100%;">
+								<tbody>
+									<tr>
+										<td style="width:134px;vertical-align:top;">
+											<img src="http://63b6362e95c3d031c52e-830a5dbfa7ab54763de5691a4f04b95d.r37.cf1.rackcdn.com/compass.png" />
+										</td>
+										<td style="vertical-align:middle;">
+											Bacon ipsum dolor sit amet beef turkey doner, salami brisket tri-tip filet mignon tenderloin. Ham venison turkey rump, tail capicola frankfurter t-bone salami. Rump turkey ribeye, venison meatball pork chop spare ribs. Meatball shank bresaola pork beef ribs. Pork chop strip steak andouille drumstick pastrami, pork belly jowl sirloin capicola. Salami tenderloin sausage tri-tip, short ribs shank kevin.
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td style="width:50%;">
+							<table width="100%;">
+								<tbody>
+									<tr>
+										<td style="width:134px;vertical-align:top;">
+											<img src="http://63b6362e95c3d031c52e-830a5dbfa7ab54763de5691a4f04b95d.r37.cf1.rackcdn.com/magnifyingglass.png" />
+										</td>
+										<td style="vertical-align:middle;">
+											Pork loin filet mignon, tongue shankle ground round pork belly corned beef bresaola frankfurter. Andouille jowl sirloin beef brisket beef ribs cow ham. Kevin biltong tri-tip rump bacon prosciutto, frankfurter beef landjaeger chuck hamburger brisket strip steak pork salami. Bacon capicola pork belly rump, ham beef ribs biltong jowl kevin prosciutto. Frankfurter brisket short ribs beef kevin beef ribs meatloaf bresaola boudin swine.
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="clearfix"></div>
+	</div>
+	
+</div>
+
+<script type="text/javascript">
+	
+	
+	function validateEmail(email){
+		var testresults
+		var filter	= /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+		return filter.test(email);
+	}
+	
+	
+	
+	function getCdnFile(filename) {
+		return "http://63b6362e95c3d031c52e-830a5dbfa7ab54763de5691a4f04b95d.r37.cf1.rackcdn.com/"+filename;
+	}
+	
+	var panorama;
+	var boxEmail;
+	var boxEmailError;
+	var boxPhone;
+	var boxPhoneError;
+	var boxLink;
+	var boxStats;
+	
+	
+	function setYOffset(v) {
+		// Set the offset
+		boxEmail.yoffset 		= v;
+		boxEmailError.yoffset 	= v;
+		boxPhone.yoffset 		= v;
+		boxPhoneError.yoffset 	= v;
+		boxLink.yoffset 		= v;
+		boxStats.yoffset 		= v;
+		
+		// Redraw
+		boxEmail.onresize();
+		boxEmailError.onresize();
+		boxPhone.onresize();
+		boxPhoneError.onresize();
+		boxLink.onresize();
+		boxStats.onresize();
+	}
+	
+	
+	function centerContent() {
+		var staticSize 	= 180;
+		var boxSize 	= 180;
+		
+		var middle 		= (($(window).height()-(staticSize+boxSize))/2);
+		setYOffset(middle+staticSize);
+		$('#logo').css('margin-top', middle);
+	}
+	
+	
+	$(function() {
+		panorama = new window.imageContainer({
+			container:	$("#panorama"),
+			image:		{
+				src:		getCdnFile('nyc.jpg'),
+				width:		2048,
+				height:		1367
+			},
+			scaleUp:	true,
+			height:		450,
+			onResize:	function(scope) {
+				$('#overlay').css('height', scope.options.container.height());
+			}
+		});
+		
+		var logo = new window.imageContainer({
+			container:	$("#logo"),
+			image:		{
+				src:		getCdnFile('logo.png'),
+				width:		406,
+				height:		60
+			},
+			height:		60,
+			scaleUp:	false
+		});
+		
+		
+		boxEmail 		= new window.htmlBlock($('#box-email'));
+		boxEmailError 	= new window.htmlBlock($('#box-email-error'));
+		boxPhone 		= new window.htmlBlock($('#box-phone'));
+		boxPhoneError 	= new window.htmlBlock($('#box-phone-error'));
+		boxLink 		= new window.htmlBlock($('#box-link'));
+		boxStats 		= new window.htmlBlock($('#box-stats'));
+		
+		
+		// Hide everything
+		boxEmail.hide();
+		boxEmailError.hide();
+		boxPhone.hide();
+		boxPhoneError.hide();
+		boxLink.hide();
+		boxStats.hide();
+		
+		window.steps = [];
+		
+		if (window.userData.id) {
+			
+			// Set the offset
+			centerContent();
+			
+			// user is logged in, update the panorama to 100%
+			panorama.options.height = '100%';
+			panorama.resize();
+			
+			// Figure out the order of the steps
+			if (window.userData.steps) {
+				if (!window.userData.steps.email) {
+					window.steps.push(boxEmail);
+				}
+				if (!window.userData.steps.phone) {
+					window.steps.push(boxPhone);
+				}
+				window.steps.push(boxLink);
+			} else {
+				// No steps
+				window.steps.push(boxEmail);
+				window.steps.push(boxPhone);
+				window.steps.push(boxLink);
+			}
+		}
+	});
+	
+	window.meanEngine.get('app').controller('pageCtrl', function ($scope) {
+		
+		$scope.countrycodes = {json:countrycodes};
+		$scope.user 		= window.userData;
+		$scope.anonymous 	= !!!$scope.user.id; // Inverse Bool type-casting
+		$scope.loading		= false;
+		$scope.currentStep	= -1;
+		
+		// Safe Apply method
+		$scope.safeApply = function(fn) {
+			var phase = this.$root.$$phase;
+			if(phase == '$apply' || phase == '$digest') {
+				if(fn && (typeof(fn) === 'function')) {
+					fn();
+				}
+			} else {
+				this.$apply(fn);
+			}
+		};
+		
+		// Social login
+		$scope.social_connect = function(service) {
+			// Set the cookies
+			window.meanEngine.setCookie('auth_type', 			'login');
+			window.meanEngine.setCookie('auth_service', 		service);
+			window.meanEngine.setCookie('auth_redirect', 		'/?auth_service='+service);
+			window.meanEngine.setCookie('auth_redirect_fail', 	'/?auth_service_fail='+service);
+			
+			// Redirect
+			document.location.href= '/auth/'+service;
+		}
+		
+		$scope.codespan = function(code) {
+			var output = "";
+			var i;
+			var l = 10-code.toString().length;
+			for (i=0;i<l;i++) {
+				output += "\u00A0";
+			}
+			return output;
+		}
+		
+		$scope.points = {
+			data:		{
+				position:	'[loading]',
+				points:		'[loading]',
+				history:	[]
+			},
+			loading:	false,
+			refresh:	function() {
+				$scope.safeApply(function() {
+					$scope.points.loading = true;
+				});
+				window.meanEngine.jsonp(window.meanEngine.get('api_base')+'/user/stats/jsonp', {
+					uid:		$scope.user.id,
+					apikey:		$scope.user.apikey
+				}, function(response) {
+					$scope.safeApply(function() {
+						$scope.points.data 		= response;
+						$scope.points.loading 	= false;
+						console.log("$scope.points.data",$scope.points.data);
+					});
+				}, function(msg) {
+					
+				});
+			}
+		}
+		$scope.points.refresh();
+		
+		
+		$scope.stepManager = {
+			next:	function() {
+				$scope.currentStep++;
+				if ($scope.currentSte >= window.steps.length) {
+					return false;
+				}
+				if ($scope.currentStep > 0) {
+					window.steps[$scope.currentStep-1].go();
+				}
+				window.steps[$scope.currentStep].come();
+			},
+			stepBack:	function() {
+				window.steps[$scope.currentStep].stepBack();
+			},
+			stepUp:	function() {
+				window.steps[$scope.currentStep].stepUp();
+			}
+		}
+		
+		$(function() {
+			// Display the first step
+			if (!$scope.anonymous) {
+				$scope.stepManager.next();
+				boxStats.show();
+				boxStats.vcenter();
+				boxStats.left();
+				$(window).resize(function() {
+					centerContent();
+				});
+				centerContent();
+			}
+		});
+		
+		
+		
+		
+		
+		$scope.data = {
+			save:	function(type) {
+				
+				var value	= false;
+				var valid	= false;
+				
+				switch (type) {
+					case "email":
+						value 	= $scope.user.email;
+						valid 	= validateEmail($scope.user.email);
+					break;
+					case "phone":
+						if (!$scope.user.phone || !$scope.user.phone.code || !$scope.user.phone.number) {
+							console.warn("01");
+							valid 	= false;
+						} else {
+							value 	= $scope.user.phone;
+							valid	= $scope.user.phone.number.length >= 5;
+							console.warn("02", valid);
+						}
+						
+					break;
+				}
+				
+				if (!valid) {
+					if (type == 'email') {
+						$scope.stepManager.stepBack();
+						boxEmailError.drop();
+						$scope.emailErrorShow = true;
+					}
+					if (type == 'phone') {
+						$scope.stepManager.stepBack();
+						boxPhoneError.drop();
+						$scope.phoneErrorShow = true;
+					}
+				} else {
+					
+					$scope.stepManager.next();
+					
+					window.meanEngine.jsonp(window.meanEngine.get('api_base')+'/user/set/jsonp', {
+						uid:		$scope.user.id,
+						apikey:		$scope.user.apikey,
+						type:		type,
+						data:		value
+					}, function(response) {
+						$scope.points.refresh();
+						
+						// Force a cache refresh in case the user reloads (to not show again steps he completed)
+						window.meanEngine.setCookie('refresh_session_cache', 	true);
+					}, function(msg) {
+						
+					});
+				}
+			},
+			skip:	function(type) {
+				$scope.stepManager.next();
+				if ($scope.emailErrorShow) {
+					$scope.data.skipError(type);
+				}
+				if ($scope.phoneErrorShow) {
+					$scope.data.skipError(type);
+				}
+			},
+			skipError:	function(type) {
+				if (type == 'phone') {
+					$scope.stepManager.stepUp();
+					boxPhoneError.goScale();
+					$scope.phoneErrorShow = false;
+				}
+				if (type == 'email') {
+					$scope.stepManager.stepUp();
+					boxEmailError.goScale();
+					$scope.emailErrorShow = false;
+				}
+				
+			}
+		}
+		
+		
+		$scope.post = {
+			facebook:	function() {
+				FB.ui({
+					method: 'share',
+					href: 'http://www.pagevamp.com',	//http://fleetwit.dev:5000
+				}, function(response){
+					console.warn("response",response);
+					
+					var data = false;
+					if (response.e2e) {
+						try {
+							data = JSON.parse(response.e2e);
+						} catch (e) {}
+						
+						if (data.submit_0) {
+							data = data.submit_0;
+						}
+					}
+										
+					window.meanEngine.jsonp(window.meanEngine.get('api_base')+'/user/log/jsonp', {
+						uid:		$scope.user.id,
+						apikey:		$scope.user.apikey,
+						type:		'facebook',
+						data:		data
+					}, function(response) {},function(msg) {});
+				});
+			},
+			twitter:	function() {
+				var options = "height=300,width=500,status=no,toolbar=no,menubar=no,location=no,scrollbars=yes";  	// 
+				var popupId	= window.open('https://twitter.com/intent/tweet?url=http%3A%2F%2Fbeta.pagevamp.com%2Fref%2F'+escape($scope.user.id)+'&text=For%20every%20person%20who%20doesn%27t%20signup%2C%20we%20kill%20a%20puppie.%20Your%20move%20internet.&via=pagevamp', 'pagevamp_connect', options); 
+				if (window.focus) {
+					popupId.focus();
+				}
+			}
+		};
+	});
+	
+</script>
+
+{include:site/desktop/sub/footer.html}

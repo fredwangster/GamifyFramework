@@ -1,0 +1,239 @@
+{include:site/famous/sub/header.html}
+
+<style type="text/css">
+	a {
+		cursor:	pointer;
+	}
+	.dropdown-menu {
+		max-height:		400px;
+		overflow:		auto;
+	}
+</style>
+
+<div id="content" ng-controller="pageCtrl">
+	
+	<div id="panorama" class="panorama"></div>
+	<div class="overlay"></div>
+	<div class="content">
+		<div id="logo" class="logo"></div>
+		<div class="text-large">
+			Bacon ipsum dolor sit amet jowl
+		</div>
+		<div class="text-medium">
+			Pork belly pork chop jerky cow andouille landjaeger turkey 
+		</div>
+		
+		<div class="box" id="box-connect" style="margin-top:30px;">
+			<div class="text center regular">Pork belly pork chop jerky cow andouille landjaeger turkey</div>
+			<div class="fblogin" ng-click="fblogin()"></div>
+			<div class="text center small">Pork belly pork chop jerky cow andouille landjaeger turkey</div>
+		</div>
+		
+	</div>
+	
+	<!-- Anonymous -->
+	<div ng-if="anonymous">
+		<p>There are {{count}} users on the list.</p>
+	
+		<div ng-if="failed">
+			Sorry, we couldn't log you in. Try again?
+		</div>
+		<div ng-if="user">
+			<a ng-click="social_connect('facebook')">Login with facebook</a>
+		</div>
+	</div>
+	
+	
+	
+	
+	<!-- Logged in -->
+	<div ng-if="!anonymous">
+		<p>Hi {{user.profile.facebook.first_name}}!</p>
+		<p>Want to get more points?</p>
+		
+		
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Confirm your email address:
+				<div class="badge pull-right">+5 points</div>
+			</div>
+			<div class="panel-body">
+				<input type="text" class="form-control" ng-model="user.email" />
+			</div>
+			<div class="panel-footer">
+				<div class="btn btn-primary" ng-click="data.save('email')">Confirm email</div>
+			</div>
+		</div>
+		
+		
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Opt-in to receive a text message:
+				<div class="badge pull-right">+10 points</div>
+			</div>
+			<div class="panel-body">
+				
+				<div class="input-group">
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+							<span ng-if="!user.phone.code">
+								Country code
+							</span>
+							<span ng-if="user.phone.code">
+								+{{user.phone.code}}
+							</span>
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li ng-repeat="(country,code) in countrycodes"><a ng-click="user.phone.code=code">+{{code}} - {{country}}</a></li>
+						</ul>
+					</div>
+					<input type="text" class="form-control" ng-model="user.phone.number" />
+				</div>
+			</div>
+			<div class="panel-footer">
+				<div class="btn btn-primary" ng-click="data.save('phone')">Send me a text message when I have access</div>
+			</div>
+		</div>
+		
+		
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Share this link:
+				<div class="badge pull-right">+20 points per referral</div>
+			</div>
+			<div class="panel-body">
+				<input type="text" class="form-control" readonly value="http://fleetwit.dev:5000/clickme/{{user.id}}" />
+			</div>
+			<div class="panel-footer">
+				<div class="btn btn-primary" ng-click="social.fbshare()">Share on Facebook</div>
+				<div class="btn btn-primary" ng-click="social.tweet()">Share on Twitter</div>
+			</div>
+		</div>
+		
+	</div>
+	
+</div>
+
+<script type="text/javascript">
+	
+	
+	// WinComm
+	var comm = new window.wincomm({
+		onMessage:	function(message) {
+			if (message.success) {
+				//alert("You have connected your "+message.success+" account.");
+			}
+			if (message.fail) {
+				//alert("Sorry, we couldn't connect your "+message.fail+" account :(");
+			}
+		}
+	});
+	
+	
+	function getCdnFile(filename) {
+		return "http://127.0.0.1/git/pv-betapage/pages/"+filename;
+	}
+	
+	$(function() {
+		var panorama = new window.imageContainer({
+			container:	$("#panorama"),
+			image:		{
+				src:		getCdnFile('images/nyc.jpg'),
+				width:		2048,
+				height:		1367
+			},
+			scaleUp:	true,
+			height:		400,
+		});
+		
+		var logo = new window.imageContainer({
+			container:	$("#logo"),
+			image:		{
+				src:		getCdnFile('images/logo.png'),
+				width:		406,
+				height:		60
+			},
+			scaleUp:	false
+		});
+		
+		var boxConnect = new window.htmlBlock($('#box-connect'));
+		boxConnect.hcenter();
+	});
+	
+	window.meanEngine.get('app').controller('pageCtrl', function ($scope) {
+		
+		
+		
+		$scope.user 		= window.userData;
+		$scope.countrycodes = {json:countrycodes};
+		console.log("$scope.user",$scope.user);
+		$scope.anonymous 	= !!!$scope.user.id; // Inverse Bool type-casting
+		
+		$scope.count 	= {text:count};
+		$scope.failed	= false;
+		
+		// The page's query strings
+		$scope.qs 	= window.meanEngine.qs();
+		
+		if ($scope.qs.auth_service) {
+			// Force cache refresh for the next pageload
+			window.meanEngine.setCookie('refresh_session_cache', 	true);
+		}
+		
+		if ($scope.qs.auth_service_fail) {
+			$scope.failed	= true;
+		}
+		
+		
+		$scope.fblogin = function() {
+			FB.login(function(response) {
+				console.log(response);
+			}, {scope: 'user_friends'});
+		}
+		
+		
+		$scope.social_connect = function(service) {
+			// Set the cookies
+			window.meanEngine.setCookie('auth_type', 			'login');
+			window.meanEngine.setCookie('auth_service', 		service);
+			window.meanEngine.setCookie('auth_redirect', 		'/?auth_service='+service);
+			window.meanEngine.setCookie('auth_redirect_fail', 	'/?auth_service_fail='+service);
+			
+			// Redirect
+			document.location.href= '/auth/'+service;
+		}
+		
+		
+		// Data management
+		$scope.data = {
+			save:	function(type) {
+				
+				var value	= false;
+				switch (type) {
+					case "email":
+						value = $scope.user.email;
+					break;
+					case "phone":
+						value = $scope.user.phone;
+					break;
+				}
+				
+				window.meanEngine.jsonp(window.meanEngine.get('api_base')+'/user/set/jsonp', {
+					uid:		$scope.user.id,
+					apikey:		$scope.user.apikey,
+					type:		type,
+					data:		value
+				}, function(response) {
+					
+				}, function(msg) {
+					
+				});
+			}
+		}
+		
+	});
+	
+</script>
+
+{include:site/famous/sub/footer.html}

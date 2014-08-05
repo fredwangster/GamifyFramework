@@ -1,0 +1,29 @@
+{
+	"name": 		"GamifyFramework",
+	"description": 	"Quick development framework",
+	"version":		"1.0.0",
+	"dependencies": {
+		"mongodb":				"latest",
+		"underscore":			"latest",
+		"express":				"latest",
+		"request":				"latest",
+		"gamify":				"latest",
+		"passport":				"latest",
+		"toolset":				"latest",
+		"mime":					"latest",
+		"less":					"latest",
+		"serve-favicon":		"latest",
+		"morgan":				"latest",
+		"cookie-parser":		"latest",
+		"body-parser":			"latest",
+		"method-override":		"latest",
+		"express-session":		"latest",
+		"errorhandler":			"latest",
+		"express-flash":		"latest",
+		"express-sessions":		"latest",
+		"express-device":		"latest",
+		"connect-multiparty":	"latest",
+		"express-cookieauth":	"latest",
+		"rendering":			"latest"
+	}
+}
