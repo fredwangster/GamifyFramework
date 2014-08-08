@@ -23,6 +23,7 @@ var expressSession  	= require('express-session');
 var errorHandler 		= require('errorhandler');
 var expressCookieauth 	= require('express-cookieauth');
 var expressDevice 		= require('express-device');
+var exphbs 				= require('express3-handlebars');	//for officially supported express.js rendering engines
 
 // Default options
 var options = _.extend({
@@ -46,11 +47,6 @@ var app = express();
 // all environments
 app.set('port', process.env.PORT || options.port);
 app.set('env', options.env);
-app.set('views', __dirname + 'templates');
-app.set('view engine', 'twig');
-app.set('view cache', false);
-app.disable('view cache');
-
 app.use('/static',express.static(__dirname + '/pages'));
 
 app.use(flash());
@@ -60,6 +56,18 @@ app.use(serveFavicon(__dirname + '/favicon.ico'));
 app.use(cookieParser());
 app.use(methodOverride());
 app.use(expressDevice.capture());
+
+
+// not really used by Gamify
+app.set('view cache', false);
+app.disable('view cache');
+
+//for officially supported express.js rendering engines
+app.set('views', __dirname+"/pages/views/");
+app.engine('handlebars', exphbs({}));
+app.set('view engine', 'handlebars');
+
+
 
 // development only
 if ('dev' == app.get('env')) {

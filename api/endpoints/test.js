@@ -92,6 +92,8 @@ api.prototype.init = function(Gamify, callback){
 			}
 		},
 		
+
+		//returns an error message
 		errormessage: {
 			require:		[],
 			auth:			false,

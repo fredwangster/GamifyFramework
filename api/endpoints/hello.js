@@ -15,9 +15,25 @@ api.prototype.init = function(Gamify, callback){
 	var methods = {
 		
 		// I only keep one method:
+		world: {
+			require:		[],
+			auth:			false,
+			description:	"A new /hello/world api method",
+			params:			{},
+			status:			'dev',
+			version:		1.0,
+			callback:		function(params, req, res, callback) {
+				
+				// From the browser: /api/hello/world
+				
+				callback({
+					hello:	'world',
+				});
+			}
+		},
 		// This was our first example. Let's put the authentication on it.
 		// First, we try without authentication.
-		world: {
+		empire: {
 			require:		[],
 			auth:			'testAuth',	// Simply copy-paste the name of the authentication method and you're set!
 			description:	"A new /hello/world api method",
@@ -30,7 +46,7 @@ api.prototype.init = function(Gamify, callback){
 				
 				callback({
 					hello:	'world',
-					userId:	params.__auth	// Remember that's a special property that extends the params if the authentication succeed.
+					userId:	params.__auth	// Remember that's a special property that extends the params if the authentication succeeded.
 				});
 			}
 		}

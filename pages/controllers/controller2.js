@@ -1,5 +1,5 @@
-var _ 					= require('underscore');
-var qs 					= require("querystring");
+var _					= require('underscore');
+var qs					= require("querystring");
 
 // Users
 function page() {
@@ -13,8 +13,8 @@ page.prototype.init = function(Gamify, callback){
 	// Return the methods
 	var paths = {
 		
-		// The dashboard
-		'/hello/world': {
+		// Hello World
+		'/hello/world/:fred': {
 			require:		[],
 			auth:			false,
 			description:	"My new page",
@@ -22,14 +22,22 @@ page.prototype.init = function(Gamify, callback){
 			status:			'dev',
 			version:		1.0,
 			callback:		function(params, req, res, callback) {
-				
-				
-				Gamify.render("pages/views/new_page.html", {}, function(rendered) {
-					callback(rendered);
-				}, Gamify, res, req);
-				
-				// Done.
-				
+				callback("Hello from newpage!"+JSON.stringify(params));
+			}
+		},
+
+		//  He
+		'/hello/handlebars': {
+			require:		[],
+			auth:			false,
+			description:	"My new page",
+			params:			{},
+			status:			'dev',
+			version:		1.0,
+			callback:		function(params, req, res, callback) {
+
+				res.render('hello.handlebars');
+
 			}
 		}
 	};

@@ -25,27 +25,10 @@ page.prototype.init = function(Gamify, callback){
 				
 				// Rendering engine
 				// Gamify.render(filename, data, callback, Gamify_instance, req, res)
-				Gamify.render("pages/views/homepage.html", {}, function(rendered) {
+				Gamify.render("pages/views/index.html", {}, function(rendered) {
 					callback(rendered);
 				}, Gamify, res, req);
 				
-			}
-		},
-		
-		'/my/new/page': {
-			require:		[],
-			auth:			false,
-			description:	"a new page for the demo",
-			params:			{},
-			status:			'dev',
-			version:		1.0,
-			callback:		function(params, req, res, callback) {
-				
-				Gamify.render("pages/views/a_new_page.html", {}, function(rendered) {
-					callback(rendered);
-				}, Gamify, res, req);
-				
-				// done!
 			}
 		},
 		
@@ -67,7 +50,7 @@ page.prototype.init = function(Gamify, callback){
 				
 				
 				Gamify.render("pages/views/dependencies.html", {
-					dependencies:	['jquery','bootstrap']
+					dependency_list:	['jquery','bootstrap']
 				}, function(rendered) {
 					callback(rendered);
 				}, Gamify, res, req);
